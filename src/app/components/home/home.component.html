@@ -1,7 +1,11 @@
+slug:string
 <div class="filters">
     <mat-form-field>
       <mat-label>Sort</mat-label>
       <mat-select
+      panelClass="sort-select"
+      [(ngModel)]="sort"
+      (selectionChange)="searchGames(sort)"
       >
         <mat-option value="name">Name</mat-option>
         <mat-option value="-released">Released</mat-option>
@@ -14,25 +18,28 @@
     </mat-form-field>
   </div>
   <div class="games">  
+    <ng-container *ngFor="let game of games">
       <div class="game">
         <div class="game-thumb-container">
           <img
-            src="https://wholesgame.com/wp-content/uploads/Jumanji-The-Video-Game-PS4.jpg"
+          *ngIf="game.background_image"
+            src="{{ game.background_image }}"
             alt="thumbnail"
             class="game-thumbnail"
           />
        
         </div>
         <div class="game-description">
-          <p class="game-name">name</p>
+          <p class="game-name">{{ game.name }}</p>
           <div class="game-platforms">
             <img          
+            *ngFor="let gamePlatform of game.parent_platforms"         
               class="game-platform"
-              src="data:image/png;base64,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"
-              alt="slug"
+              src="assets/images/platforms/{{ gamePlatform.platform.slug }}.svg"
+              alt="{{ gamePlatform.platform.name.toLowerCase() }}"
             />
           </div>
         </div>
       </div>
-   
+    </ng-container>
   </div>
